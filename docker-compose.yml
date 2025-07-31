@@ -1,0 +1,46 @@
+services:
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+     - '3000:3000'
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    
+  prometheus:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prom_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-remote-write-receiver'
+
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/loki-config.yaml:ro
+    restart: unless-stopped
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: "loki-logs-group"
+        awslogs-stream: "loki-logs"
+        awslogs-region: "eu-west-1"
+    
+volumes:
+  prom_data:
+  grafana-storage: {}
