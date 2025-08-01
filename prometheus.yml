@@ -19,7 +19,7 @@ scrape_configs:
   - job_name: 'fast_api'
     metrics_path: /metrics
     static_configs:
-      - targets: ['seyram.site:8000'] 
+      - targets: ['seyram.site'] 
 
   - job_name: 'ecs_exporter_fast_api'
     metrics_path: /metrics
